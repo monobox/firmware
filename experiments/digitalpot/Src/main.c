@@ -66,6 +66,9 @@ static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN 0 */
 
+#define MCP4551_ADDRESS     0x2e
+#define MCP4018_ADDRESS     0x2f
+
 /* USER CODE END 0 */
 
 /**
@@ -101,7 +104,8 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
-  uint8_t val[2] = {0, 0};
+  uint8_t data_mcp4551[2] = {0, 0};
+  uint8_t data_mcp4018 = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,19 +116,32 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-      HAL_StatusTypeDef returnValue;
+      HAL_StatusTypeDef rc;
 
       // MCP4551 address: 0x2e (A0=GND), write wiper command=0x00
-      returnValue = HAL_I2C_Master_Transmit(&hi2c1, 0x5c, val, 2, HAL_MAX_DELAY);
+      rc = HAL_I2C_Master_Transmit(&hi2c1, MCP4551_ADDRESS << 1, data_mcp4551, 2, HAL_MAX_DELAY);
 
-      if (returnValue != HAL_OK) {
-         printf("Error %d\r\n", returnValue);
+      if (rc != HAL_OK) {
+         printf("Error addr=0x%x %d\r\n", MCP4551_ADDRESS, rc);
       }
 
-      ++val[1];
+      // MCP4018 address: 0x2f, send directly the wiper value (7-bits)
+      rc = HAL_I2C_Master_Transmit(&hi2c1, MCP4018_ADDRESS << 1, &data_mcp4018, 1, HAL_MAX_DELAY);
+
+      if (rc != HAL_OK) {
+         printf("Error addr=0x%x %d\r\n", MCP4018_ADDRESS, rc);
+      }
+
+      // Increment the wiper value and let it overflow
+      ++data_mcp4551[1];
+
+      // Clamp to 7-bits
+      if (++data_mcp4018 > 127) {
+          data_mcp4018 = 0;
+      }
 
       HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-      HAL_Delay(10);
+      HAL_Delay(20);
 
   }
   /* USER CODE END 3 */
