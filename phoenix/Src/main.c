@@ -43,6 +43,7 @@
 #include "encoder.h"
 #include "sampleplayer.h"
 #include "mcp4018.h"
+#include "button.h"
 
 /* USER CODE END Includes */
 
@@ -59,6 +60,8 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
+uint32_t sys_timer_ms = 0;
 
 /* USER CODE END PV */
 
@@ -136,10 +139,14 @@ int main(void)
 
       if (new_encoder_pos != last_encoder_pos) {
           mcp4018_set_wiper(new_encoder_pos);
-          printf("Enc=%d\r\n", encoder_read());
+          printf("Enc=%d tim=%lu\r\n", encoder_read(), sys_timer_ms);
           sampleplayer_play_click();
 
           last_encoder_pos = new_encoder_pos;
+      }
+
+      if (button_update() == BUTTON_STATE_PUSHED) {
+          sampleplayer_play_bleep();
       }
       HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
 

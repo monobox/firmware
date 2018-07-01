@@ -10,5 +10,6 @@
 
 void sampleplayer_init();
 void sampleplayer_play_click();
+void sampleplayer_play_bleep();
 
 #endif /* SAMPLEPLAYER_H_ */

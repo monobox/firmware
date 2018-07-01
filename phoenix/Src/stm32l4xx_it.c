@@ -38,6 +38,8 @@
 /* USER CODE BEGIN 0 */
 #include "encoder.h"
 
+extern uint32_t sys_timer_ms;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -53,6 +55,8 @@ extern DMA_HandleTypeDef hdma_dac_ch1;
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+    // Counter which increases monotonically every millisecond
+    ++sys_timer_ms;
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
