@@ -42,6 +42,7 @@
 /* USER CODE BEGIN Includes */
 #include "encoder.h"
 #include "sampleplayer.h"
+#include "mcp4018.h"
 
 /* USER CODE END Includes */
 
@@ -88,6 +89,7 @@ static void MX_TIM6_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+    uint8_t last_encoder_pos = 0;
 
   /* USER CODE END 1 */
 
@@ -118,6 +120,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   sampleplayer_init();
+  mcp4018_set_wiper(0);
 
   /* USER CODE END 2 */
 
@@ -129,11 +132,18 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-      HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
-      printf("Enc=%d\r\n", encoder_read());
-      sampleplayer_play_click();
+      uint8_t new_encoder_pos = encoder_read();
 
-      HAL_Delay(200);
+      if (new_encoder_pos != last_encoder_pos) {
+          mcp4018_set_wiper(new_encoder_pos);
+          printf("Enc=%d\r\n", encoder_read());
+          sampleplayer_play_click();
+
+          last_encoder_pos = new_encoder_pos;
+      }
+      HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+
+      HAL_Delay(10);
 
   }
   /* USER CODE END 3 */
