@@ -40,6 +40,7 @@
 #include "stm32l4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+#include "encoder.h"
 
 /* USER CODE END Includes */
 
@@ -119,6 +120,8 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
       HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+      printf("Enc=%d\r\n", encoder_read());
+
       HAL_Delay(200);
 
   }
@@ -287,7 +290,7 @@ static void MX_USART2_UART_Init(void)
 
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_7B;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
@@ -323,8 +326,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : ENC_A_Pin ENC_B_Pin */
   GPIO_InitStruct.Pin = ENC_A_Pin|ENC_B_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ENC_BUT_Pin */
