@@ -60,6 +60,8 @@ class BootloaderSession:
     ACK = 0x79
     NAK = 0x1f
 
+    FLASH_BASEADDR = 0x08000000
+
     def __init__(self, port):
         self._ser = serial.Serial(port, 115200, parity=serial.PARITY_EVEN, timeout=0.5)
         self._ser.flush()
@@ -80,6 +82,20 @@ class BootloaderSession:
         else:
             logger.error('Unable to retrieve PID')
             return None
+
+    def jump(self, address):
+        self._send(0x21)
+
+        if self._expect(self.ACK):
+            comps = list(address.to_bytes(4, 'big'))
+            self._send(*comps)
+
+            return self._expect(self.ACK)
+        else:
+            return False
+
+    def boot_flash(self):
+        return self.jump(self.FLASH_BASEADDR)
 
     def _send(self, *seq, send_checksum=True):
         seq = list(seq)
@@ -154,7 +170,9 @@ def main():
 
     if session.connect():
         logger.info('Product ID: 0x{0:02x}'.format(session.get_pid()))
+        logger.info('Booting flash: {}'.format(session.boot_flash()))
 
+    input('Press enter to terminate: ')
 
 if __name__ == '__main__':
     main()
