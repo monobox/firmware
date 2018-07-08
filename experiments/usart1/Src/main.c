@@ -113,13 +113,15 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
       // Echoes back in polling mode, 115200bps 8N1
-      HAL_StatusTypeDef rc = HAL_UART_Receive(&huart1, &buffer, 1, HAL_MAX_DELAY);
+      HAL_StatusTypeDef rc = HAL_UART_Receive(&huart1, &buffer, 1, 50);
 
       if (rc == HAL_OK) {
-          rc = HAL_UART_Transmit(&huart1, &buffer, 1, HAL_MAX_DELAY);
-          HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+          HAL_UART_Transmit(&huart1, &buffer, 1, HAL_MAX_DELAY);
+      } else {
+          uint8_t dot = '.';
+          HAL_UART_Transmit(&huart1, &dot, 1, HAL_MAX_DELAY);
       }
-
+      HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
   }
   /* USER CODE END 3 */
 
